@@ -3,8 +3,8 @@ const userRouter = require("./users");
 const clothingItemsRouter = require("./clothingItems");
 const { NOT_FOUND_STATUS_CODE } = require("../utils/errors");
 
-router.use("/users", userRouter);
-router.use("/clothingItems", clothingItemsRouter);
+router.use("/", userRouter);
+router.use("/", clothingItemsRouter);
 
 router.use((req, res) => {
   res

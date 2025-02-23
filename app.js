@@ -1,7 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const userRouter = require('./routes/users');
-const clothingItemsRouter = require('./routes/clothingItems');
+const routes = require("./routes/index");
 
 
 const app = express();
@@ -24,8 +23,7 @@ mongoose.connection.on("connected", () => {
 })
 
 // Routes
-app.use('/' , userRouter);
-app.use('/', clothingItemsRouter);
+app.use("/", routes);
 
 // Start the server
 app.listen(PORT, () => {
