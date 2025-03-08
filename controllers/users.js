@@ -10,16 +10,7 @@ const {
   UNAUTHORIZED_STATUS_CODE,
 } = require("../utils/errors");
 
-module.exports.getUsers = (req, res) => {
-  User.find({})
-    .then((users) => res.send(users))
-    .catch((err) => {
-      console.error(err);
-      return res
-        .status(SERVER_ERROR_STATUS_CODE)
-        .send({ message: "An error has occurred on the server" });
-    });
-};
+
 
 module.exports.createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;

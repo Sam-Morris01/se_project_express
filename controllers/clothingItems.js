@@ -97,12 +97,17 @@ module.exports.deleteItem = (req, res) => {
           .status(BAD_REQUEST_STATUS_CODE)
           .send({ message: err.message });
       }
-      if (err.name === "DocumentNotFoundError") {
+      if (err.statusCode === NOT_FOUND_STATUS_CODE) {
         return res.status(NOT_FOUND_STATUS_CODE).send({ message: err.message });
       }
       if (err.name === "CastError") {
         return res
           .status(BAD_REQUEST_STATUS_CODE)
+          .send({ message: err.message });
+      }
+      if (err.statusCode === FORBIDDEN_STATUS_CODE) {
+        return res
+          .status(FORBIDDEN_STATUS_CODE)
           .send({ message: err.message });
       }
       return res
