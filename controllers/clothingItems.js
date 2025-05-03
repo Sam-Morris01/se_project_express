@@ -1,23 +1,17 @@
 const ClothingItem = require("../models/clothingItem");
 const {
-  BAD_REQUEST_STATUS_CODE,
-  NOT_FOUND_STATUS_CODE,
-  SERVER_ERROR_STATUS_CODE,
-  FORBIDDEN_STATUS_CODE,
+  BadRequestError,
+  NotFoundError,
+  ForbiddenError,
 } = require("../utils/errors");
 
-module.exports.getItems = (req, res) => {
+module.exports.getItems = (req, res, next) => {
   ClothingItem.find({})
     .then((items) => res.send(items))
-    .catch((err) => {
-      console.error(err);
-      return res
-        .status(SERVER_ERROR_STATUS_CODE)
-        .send({ message: "An error has occurred on the server" });
-    });
+    .catch(next);
 };
 
-module.exports.createItem = (req, res) => {
+module.exports.createItem = (req, res, next) => {
   const { name, weather, imageUrl } = req.body;
   const owner = req.user._id;
   ClothingItem.create({ name, weather, imageUrl, owner })
@@ -26,19 +20,15 @@ module.exports.createItem = (req, res) => {
       res.status(201).send(item);
     })
     .catch((err) => {
-      console.error(err);
       if (err.name === "ValidationError") {
-        return res
-          .status(BAD_REQUEST_STATUS_CODE)
-          .send({ message: err.message });
+        next(new BadRequestError(err.message));
+      } else {
+        next(err);
       }
-      return res
-        .status(SERVER_ERROR_STATUS_CODE)
-        .send({ message: "An error has occurred on the server" });
     });
 };
 
-const updateLike = (req, res, method) => {
+const updateLike = (req, res, next, method) => {
   const {
     params: { itemId },
   } = req;
@@ -49,73 +39,43 @@ const updateLike = (req, res, method) => {
     { new: true }
   )
     .orFail(() => {
-      const error = new Error("Item ID not found");
-      error.statusCode = NOT_FOUND_STATUS_CODE;
-      throw error;
+      throw new NotFoundError("Item ID not found");
     })
     .then((item) => {
       res.send(item);
     })
     .catch((err) => {
-      console.error(err);
       if (err.name === "CastError") {
-        res
-          .status(BAD_REQUEST_STATUS_CODE)
-          .send({ message: "Invalid item ID" });
-      } else if (err.statusCode === NOT_FOUND_STATUS_CODE) {
-        res.status(NOT_FOUND_STATUS_CODE).send({ message: err.message });
+        next(new BadRequestError("Invalid item ID"));
       } else {
-        res
-          .status(SERVER_ERROR_STATUS_CODE)
-          .send({ message: "An error has occurred on the server" });
+        next(err);
       }
     });
 };
 
-module.exports.deleteItem = (req, res) => {
+module.exports.deleteItem = (req, res, next) => {
   const userId = req.user._id;
   const { itemId } = req.params;
   ClothingItem.findById(itemId)
     .orFail(() => {
-      const error = new Error("Item not found");
-      error.statusCode = NOT_FOUND_STATUS_CODE;
-      throw error;
+      throw new NotFoundError("Item not found");
     })
     .then((item) => {
       if (item.owner.toString() !== userId.toString()) {
-        const error = new Error("You are not authorized to delete this item");
-        error.statusCode = FORBIDDEN_STATUS_CODE;
-        throw error;
+        throw new ForbiddenError("You are not authorized to delete this item");
       }
       return ClothingItem.findByIdAndDelete(itemId)
         .then(() => res.json({ message: "Item successfully deleted" }));
     })
     .catch((err) => {
-      console.error(err);
-      if (err.name === "ValidationError") {
-        return res
-          .status(BAD_REQUEST_STATUS_CODE)
-          .send({ message: err.message });
-      }
-      if (err.statusCode === NOT_FOUND_STATUS_CODE) {
-        return res.status(NOT_FOUND_STATUS_CODE).send({ message: err.message });
-      }
       if (err.name === "CastError") {
-        return res
-          .status(BAD_REQUEST_STATUS_CODE)
-          .send({ message: err.message });
+        next(new BadRequestError(err.message));
+      } else {
+        next(err);
       }
-      if (err.statusCode === FORBIDDEN_STATUS_CODE) {
-        return res
-          .status(FORBIDDEN_STATUS_CODE)
-          .send({ message: err.message });
-      }
-      return res
-        .status(SERVER_ERROR_STATUS_CODE)
-        .send({ message: "An error has occurred on the server" });
     });
 };
 
-module.exports.likeItem = (req, res) => updateLike(req, res, "$addToSet");
+module.exports.likeItem = (req, res, next) => updateLike(req, res, next, "$addToSet");
 
-module.exports.dislikeItem = (req, res) => updateLike(req, res, "$pull");
+module.exports.dislikeItem = (req, res, next) => updateLike(req, res, next, "$pull");

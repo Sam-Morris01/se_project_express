@@ -2,6 +2,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const routes = require("./routes/index");
+const { SERVER_ERROR_STATUS_CODE } = require("./utils/errors");
+const { errors } = require('celebrate');
 
 const app = express();
 const { PORT = 3001 } = process.env;
@@ -19,6 +21,16 @@ mongoose.connection.on("connected", () => {
 
 // Routes
 app.use("/", routes);
+
+// Celebrate error handler
+app.use(errors());
+
+// Error middleware
+app.use((err, req, res, next) => {
+  const statusCode = err.statusCode || SERVER_ERROR_STATUS_CODE;
+  const message = err.message || "An error has occurred on the server";
+  res.status(statusCode).send({ message });
+});
 
 // Start the server
 app.listen(PORT, () => {
