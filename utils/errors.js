@@ -1,5 +1,3 @@
-
-
 const {
   BAD_REQUEST_STATUS_CODE,
   NOT_FOUND_STATUS_CODE,
@@ -11,7 +9,7 @@ const {
 
 const BadRequestError = require('./BadRequestError');
 const NotFoundError = require('./NotFoundError');
-const ConflictError = require('./ConfilctError');
+const ConflictError = require('./ConflictError');
 const UnauthorizedError = require('./UnauthorizedError');
 const ForbiddenError = require('./ForbiddenError');
 
