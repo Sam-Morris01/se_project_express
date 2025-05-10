@@ -1,9 +1,12 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const dotenv = require("dotenv");
 const routes = require("./routes/index");
 const { SERVER_ERROR_STATUS_CODE } = require("./utils/errors");
 const { errors } = require('celebrate');
+
+dotenv.config();
 
 const app = express();
 const { PORT = 3001 } = process.env;
