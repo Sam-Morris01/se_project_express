@@ -5,7 +5,9 @@ const { UNAUTHORIZED_STATUS_CODE } = require("../utils/errors");
 const auth = (req, res, next) => {
   const { authorization } = req.headers;
   if (!authorization || !authorization.startsWith("Bearer ")) {
-    return res.status(UNAUTHORIZED_STATUS_CODE).send({ message: "You are not authorized to access this resource" });
+    const error = new Error("You are not authorized to access this resource");
+    error.statusCode = UNAUTHORIZED_STATUS_CODE;
+    throw error;
   }
 
   const token = authorization.replace("Bearer ", "");
@@ -14,7 +16,9 @@ const auth = (req, res, next) => {
     req.user = payload;
     return next();
   } catch (err) {
-    return res.status(UNAUTHORIZED_STATUS_CODE).send({ message: "Wrong token" });
+    const error = new Error("Wrong token");
+    error.statusCode = UNAUTHORIZED_STATUS_CODE;
+    throw error;
   }
 };
 
