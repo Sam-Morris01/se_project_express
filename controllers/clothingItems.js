@@ -1,4 +1,9 @@
 const ClothingItem = require("../models/clothingItem");
+const {
+  BadRequestError,
+  NotFoundError,
+  ForbiddenError,
+} = require("../utils/errors");
 
 module.exports.getItems = (req, res, next) => {
   ClothingItem.find({})
@@ -21,7 +26,13 @@ module.exports.createItem = (req, res, next) => {
       console.log(item);
       res.status(201).send(item);
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === "ValidationError") {
+        next(new BadRequestError(err.message));
+      } else {
+        next(err);
+      }
+    });
 };
 
 const updateLike = (req, res, next, method) => {
@@ -35,14 +46,18 @@ const updateLike = (req, res, next, method) => {
     { new: true }
   )
     .orFail(() => {
-      const error = new Error("Item ID not found");
-      error.name = "NotFoundError";
-      throw error;
+      throw new NotFoundError("Item ID not found");
     })
     .then((item) => {
       res.send(item);
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === "CastError") {
+        next(new BadRequestError("Invalid item ID"));
+      } else {
+        next(err);
+      }
+    });
 };
 
 module.exports.deleteItem = (req, res, next) => {
@@ -50,20 +65,22 @@ module.exports.deleteItem = (req, res, next) => {
   const { itemId } = req.params;
   ClothingItem.findById(itemId)
     .orFail(() => {
-      const error = new Error("Item not found");
-      error.name = "NotFoundError";
-      throw error;
+      throw new NotFoundError("Item not found");
     })
     .then((item) => {
       if (item.owner.toString() !== userId.toString()) {
-        const error = new Error("You are not authorized to delete this item");
-        error.name = "ForbiddenError";
-        throw error;
+        throw new ForbiddenError("You are not authorized to delete this item");
       }
       return ClothingItem.findByIdAndDelete(itemId)
         .then(() => res.json({ message: "Item successfully deleted" }));
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === "CastError") {
+        next(new BadRequestError(err.message));
+      } else {
+        next(err);
+      }
+    });
 };
 
 module.exports.likeItem = (req, res, next) => updateLike(req, res, next, "$addToSet");

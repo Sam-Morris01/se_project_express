@@ -31,5 +31,6 @@ module.exports = {
         peerDependencies: false,
       },
     ],
+    "no-unused-vars": ["error", { "argsIgnorePattern": "next" }],
   },
 };

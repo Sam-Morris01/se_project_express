@@ -8,6 +8,8 @@ const cors = require("cors");
 const routes = require("./routes/index");
 const errorHandler = require("./middlewares/errorHandler");
 const { requestLogger, errorLogger } = require("./middlewares/loggers");
+const { SERVER_ERROR_STATUS_CODE } = require("./utils/errors");
+const { errors } = require('celebrate');
 
 const app = express();
 const { PORT = 3001 } = process.env;
@@ -31,10 +33,13 @@ app.use("/", routes);
 // Error logging middleware
 app.use(errorLogger);
 
+// Celebrate error handler
+app.use(errors());
+
 // Error handling middleware
 app.use(errorHandler);
 
 // Start the server
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server is running on port ${PORT}`);
 });

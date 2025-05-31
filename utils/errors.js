@@ -1,8 +1,28 @@
+const {
+  BAD_REQUEST_STATUS_CODE,
+  NOT_FOUND_STATUS_CODE,
+  SERVER_ERROR_STATUS_CODE,
+  CONFLICT_STATUS_CODE,
+  UNAUTHORIZED_STATUS_CODE,
+  FORBIDDEN_STATUS_CODE,
+} = require('./StatusCodes');
+
+const BadRequestError = require('./BadRequestError');
+const NotFoundError = require('./NotFoundError');
+const ConflictError = require('./ConflictError');
+const UnauthorizedError = require('./UnauthorizedError');
+const ForbiddenError = require('./ForbiddenError');
+
 module.exports = {
-  BAD_REQUEST_STATUS_CODE: 400,
-  NOT_FOUND_STATUS_CODE: 404,
-  SERVER_ERROR_STATUS_CODE: 500,
-  CONFLICT_STATUS_CODE: 409,
-  UNAUTHORIZED_STATUS_CODE: 401,
-  FORBIDDEN_STATUS_CODE: 403,
+  BadRequestError,
+  NotFoundError,
+  ConflictError,
+  UnauthorizedError,
+  ForbiddenError,
+  SERVER_ERROR_STATUS_CODE,
+  CONFLICT_STATUS_CODE,
+  UNAUTHORIZED_STATUS_CODE,
+  FORBIDDEN_STATUS_CODE,
+  BAD_REQUEST_STATUS_CODE,
+  NOT_FOUND_STATUS_CODE,
 };
