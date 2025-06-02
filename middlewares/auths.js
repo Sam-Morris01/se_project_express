@@ -1,13 +1,11 @@
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../utils/config");
-const { UNAUTHORIZED_STATUS_CODE } = require("../utils/errors");
+const { UnauthorizedError } = require("../utils/errors");
 
 const auth = (req, res, next) => {
   const { authorization } = req.headers;
   if (!authorization || !authorization.startsWith("Bearer ")) {
-    const error = new Error("You are not authorized to access this resource");
-    error.statusCode = UNAUTHORIZED_STATUS_CODE;
-    throw error;
+    throw new UnauthorizedError("You are not authorized to access this resource");
   }
 
   const token = authorization.replace("Bearer ", "");
@@ -16,9 +14,7 @@ const auth = (req, res, next) => {
     req.user = payload;
     return next();
   } catch (err) {
-    const error = new Error("Wrong token");
-    error.statusCode = UNAUTHORIZED_STATUS_CODE;
-    throw error;
+    throw new UnauthorizedError("Wrong token");
   }
 };
 

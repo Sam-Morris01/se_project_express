@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 const errorHandler = (err, req, res) => {
   // Log error using a proper logging service
   // console.error(err.stack);
@@ -35,13 +34,6 @@ const errorHandler = (err, req, res) => {
   return res.status(500).json({
     message: 'An unexpected error occurred'
   });
-=======
-const errorHandler = (err, req, res, next) => {
-  const statusCode = err.statusCode || 500;
-  const message = err.message || "An error occurred on the server";
-
-  return res.status(statusCode).send({ message });
->>>>>>> origin/main
 };
 
 module.exports = errorHandler;

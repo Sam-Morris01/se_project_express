@@ -15,7 +15,7 @@ module.exports.createUser = (req, res, next) => {
     next(new BadRequestError("Email, password, name, and avatar are required"));
     return;
   }
-  return User.findOne({ email })
+  User.findOne({ email })
     .then((existingUser) => {
       if (existingUser) {
         throw new ConflictError("User already exists");
@@ -59,7 +59,7 @@ module.exports.login = (req, res, next) => {
     next(new BadRequestError("Email and password are required"));
     return;
   }
-  return User.findUserByCredentials(email, password)
+  User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
