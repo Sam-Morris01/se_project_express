@@ -1,38 +1,21 @@
-const errorHandler = (err, req, res) => {
+const errorHandler = (err, req, res, next) => {
   // Log error using a proper logging service
   // console.error(err.stack);
 
-  // Handle celebrate validation errors
-  if (err.name === 'ValidationError' && err.isJoi) {
-    return res.status(400).json({
-      message: 'Validation Error',
-      errors: err.details.map(detail => detail.message)
-    });
-  }
+  // Get status code from error or default to 500
+  const statusCode = err.statusCode || 500;
 
-  // Handle specific error types
+  // Handle validation errors (both Joi and Mongoose)
   if (err.name === 'ValidationError') {
-    return res.status(400).json({
+    return res.status(statusCode).json({
       message: 'Validation Error',
-      errors: err.errors
+      errors: err.isJoi ? err.details.map(detail => detail.message) : err.errors
     });
   }
 
-  if (err.name === 'CastError') {
-    return res.status(400).json({
-      message: 'Invalid ID format'
-    });
-  }
-
-  if (err.name === 'NotFoundError') {
-    return res.status(404).json({
-      message: err.message || 'Resource not found'
-    });
-  }
-
-  // Default to 500 server error
-  return res.status(500).json({
-    message: 'An unexpected error occurred'
+  // Handle other errors based on status code
+  return res.status(statusCode).json({
+    message: err.message || 'An unexpected error occurred'
   });
 };
 
